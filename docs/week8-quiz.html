@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>สัปดาห์ที่ 8 — มวลและน้ำหนักของวัสดุ</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
+:root{--bg:#0a0a0f;--card:#12121a;--line:#232333;--cy:#22d3ee;--cyd:#0891b2;--tx:#e6e6f0;--mut:#8a8aa0;--rd:#f43f5e;--gr:#22c55e;--yw:#facc15;--r:16px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Sarabun',sans-serif;background:
+  linear-gradient(160deg,#0a0a0f 0%,#0d1420 100%);
+  background-image:
+    linear-gradient(rgba(34,211,238,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,211,238,.05) 1px,transparent 1px),
+    linear-gradient(160deg,#0a0a0f 0%,#0d1420 100%);
+  background-size:28px 28px,28px 28px,100% 100%;
+  color:var(--tx);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:12px;user-select:none}
+.screen{display:none;width:100%;max-width:520px;animation:fadeIn .3s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px 20px;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+
+/* TITLE */
+.title-emblem{font-size:52px;text-align:center;margin-bottom:6px}
+.title-h1{text-align:center;font-size:22px;font-weight:800;color:var(--cy);line-height:1.35}
+.title-sub{text-align:center;font-size:13px;color:var(--mut);margin:4px 0 4px}
+.title-sub2{text-align:center;font-size:12px;color:var(--mut);margin-bottom:18px}
+.cats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.cat-all-btn{width:100%;border:2px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;font-size:14px;font-weight:700;font-family:'Sarabun',sans-serif;background:#1a1a26;color:var(--tx);margin-bottom:8px;transition:.15s}
+.cat-all-btn.on{background:var(--cyd);color:#001;border-color:var(--cyd)}
+.cat-sel{border:2px solid var(--line);border-radius:10px;padding:10px 8px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;font-family:'Sarabun',sans-serif;background:#1a1a26;color:var(--tx);transition:.15s}
+.cat-sel.on{color:#001;border-color:transparent}
+.cat-sel:active{transform:scale(.97)}
+.stats-row{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.stat-chip{background:rgba(250,204,21,.12);border:2px solid var(--yw);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--yw)}
+.btn-start{display:block;width:100%;background:linear-gradient(135deg,var(--cyd),var(--cy));color:#001;border:none;border-radius:12px;padding:16px;font-size:20px;font-weight:800;font-family:'Sarabun',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(34,211,238,.35);transition:.1s}
+.btn-start:active{transform:scale(.97)}
+.mode-row{display:flex;gap:8px;margin-bottom:14px}
+.mode-btn{flex:1;border:2px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;font-family:'Sarabun',sans-serif;background:#1a1a26;color:var(--tx);transition:.15s}
+.mode-btn.on{background:var(--cyd);color:#001;border-color:var(--cyd)}
+.formula-box{background:#0d1a1e;border:1px solid var(--cyd);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;line-height:1.8;color:var(--cy)}
+
+/* HUD */
+.hud{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hud-lives{font-size:20px;letter-spacing:1px}
+.hud-score{font-size:14px;font-weight:700;color:var(--cy)}
+.progress-wrap{height:6px;background:#1a1a26;border-radius:10px;margin-bottom:14px;overflow:hidden}
+.progress-fill{height:100%;background:var(--cy);border-radius:10px;transition:width .3s}
+
+/* TIMER */
+.q-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cat-badge{display:inline-block;color:#001;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700}
+.timer-wrap{position:relative;width:52px;height:52px}
+.timer-svg{transform:rotate(-90deg)}
+.timer-bg{fill:none;stroke:#1a1a26;stroke-width:6}
+.timer-ring{fill:none;stroke:var(--cy);stroke-width:6;stroke-linecap:round;stroke-dasharray:132;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .4s}
+.timer-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:17px;font-weight:800;color:var(--cy)}
+
+/* QUESTION */
+.q-num{font-size:12px;color:var(--mut);margin-bottom:6px}
+.q-text{font-size:16px;font-weight:700;color:var(--tx);line-height:1.55;margin-bottom:18px;min-height:54px}
+.choices{display:grid;gap:9px}
+.choice-btn{display:flex;align-items:center;gap:11px;background:#161622;border:2px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer;text-align:left;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--tx);transition:.12s;width:100%}
+.choice-btn:active{transform:scale(.98)}
+.choice-btn:disabled{cursor:default}
+.choice-ltr{width:28px;height:28px;background:var(--cyd);color:#001;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.choice-btn.correct{background:rgba(34,197,94,.12);border-color:var(--gr)}
+.choice-btn.correct .choice-ltr{background:var(--gr)}
+.choice-btn.wrong{background:rgba(244,63,94,.12);border-color:var(--rd)}
+.choice-btn.wrong .choice-ltr{background:var(--rd)}
+.feedback{margin-top:10px;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;display:none;animation:slideUp .25s ease;line-height:1.5}
+@keyframes slideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.feedback.ok{background:rgba(34,197,94,.12);color:#4ade80;border:1.5px solid var(--gr)}
+.feedback.ng{background:rgba(244,63,94,.12);color:#fb7185;border:1.5px solid var(--rd)}
+.btn-next{display:none;width:100%;background:var(--cyd);color:#001;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:800;font-family:'Sarabun',sans-serif;cursor:pointer;margin-top:11px}
+
+/* RESULT */
+.result-emoji{font-size:56px;text-align:center;margin-bottom:6px}
+.result-grade{text-align:center;font-size:28px;font-weight:800;margin-bottom:4px}
+.result-score{text-align:center;font-size:16px;color:var(--mut);margin-bottom:14px}
+.bar-wrap{background:#1a1a26;border-radius:20px;height:14px;margin-bottom:18px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--cyd),var(--cy));border-radius:20px;transition:width 1s ease}
+.result-detail{text-align:center;font-size:14px;color:var(--mut);margin-bottom:22px;line-height:1.9}
+.btn-replay{display:block;width:100%;background:linear-gradient(135deg,var(--cyd),var(--cy));color:#001;border:none;border-radius:12px;padding:15px;font-size:18px;font-weight:800;font-family:'Sarabun',sans-serif;cursor:pointer;margin-bottom:9px}
+.btn-share{display:block;width:100%;background:var(--yw);color:#3a2e00;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;font-family:'Sarabun',sans-serif;cursor:pointer}
+
+/* ANIMATIONS */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.shake{animation:shake .4s ease}
+.confetti-c{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
+.cc{position:absolute;opacity:0;animation:fall linear forwards}
+@keyframes fall{0%{opacity:1;transform:translateY(-20px) rotate(0)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+</style>
+</head>
+<body>
+
+<!-- TITLE -->
+<div id="s-title" class="screen active">
+<div class="card">
+  <div class="title-emblem">⚖️</div>
+  <h1 class="title-h1">สัปดาห์ที่ 8 — บทที่ 4<br>การหามวลและน้ำหนักของวัสดุ (ตอนที่ 3)</h1>
+  <p class="title-sub">วิชาคณิตศาสตร์ช่างเชื่อม — ครูธานี ชมสุข</p>
+  <p class="title-sub2">ใช้ปริมาตรที่เคยคำนวณ มาหามวล → น้ำหนัก และอ่านตารางเหล็กรูปพรรณ</p>
+
+  <div class="formula-box">
+    m = V × ρ &nbsp;(มวล = ปริมาตร × ความหนาแน่น)<br>
+    W = m × g &nbsp;(น้ำหนัก = มวล × 9.81, หน่วยนิวตัน N)
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:#aab;margin-bottom:8px">เลือกโหมด:</p>
+  <div class="mode-row">
+    <button class="mode-btn on" id="mode-challenge" onclick="setMode('challenge')">⚡ ท้าทาย<br><small>มีเวลา + ชีวิต</small></button>
+    <button class="mode-btn" id="mode-practice" onclick="setMode('practice')">📖 ฝึกซ้อม<br><small>ไม่มีเวลา</small></button>
+  </div>
+
+  <p style="font-size:13px;font-weight:700;color:#aab;margin-bottom:8px">เลือกหมวด (หรือเลือกทั้งหมด):</p>
+  <div class="cats-grid" id="cats-grid"></div>
+
+  <div class="stats-row" id="stats-row">
+    <span class="stat-chip" id="chip-q">📝 20 ข้อ</span>
+    <span class="stat-chip" id="chip-t">⏱️ 20 วิ/ข้อ</span>
+    <span class="stat-chip">❤️ 3 ชีวิต</span>
+  </div>
+  <button class="btn-start" onclick="startGame()">▶ เริ่มทำแบบทดสอบ!</button>
+</div>
+</div>
+
+<!-- QUESTION -->
+<div id="s-question" class="screen">
+<div class="card" id="q-card">
+  <div class="hud">
+    <div class="hud-lives" id="hud-lives">❤️❤️❤️</div>
+    <div class="hud-score" id="hud-score">0 คะแนน</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+  <div class="q-meta">
+    <span class="cat-badge" id="cat-badge"></span>
+    <div class="timer-wrap" id="timer-wrap">
+      <svg class="timer-svg" width="52" height="52" viewBox="0 0 52 52">
+        <circle class="timer-bg" cx="26" cy="26" r="21"/>
+        <circle class="timer-ring" id="t-ring" cx="26" cy="26" r="21"/>
+      </svg>
+      <div class="timer-num" id="t-num">20</div>
+    </div>
+  </div>
+  <div class="q-num" id="q-num"></div>
+  <div class="q-text" id="q-text"></div>
+  <div class="choices" id="choices"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="btn-next" id="btn-next" onclick="nextQ()">ข้อถัดไป →</button>
+</div>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+<div class="card">
+  <div class="result-emoji" id="r-emoji">🏆</div>
+  <div class="result-grade" id="r-grade"></div>
+  <div class="result-score" id="r-score"></div>
+  <div class="bar-wrap"><div class="bar-fill" id="r-bar" style="width:0%"></div></div>
+  <div class="result-detail" id="r-detail"></div>
+  <button class="btn-replay" onclick="backToTitle()">🔄 เริ่มใหม่</button>
+  <button class="btn-share" onclick="shareResult()">📋 คัดลอกผลคะแนน</button>
+</div>
+</div>
+
+<div class="confetti-c" id="confetti"></div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────
+const CATS = [
+  {id:'concept', label:'💡 แนวคิด/นิยาม', color:'#0891b2'},
+  {id:'mass',    label:'⚖️ สูตรหามวล (m=Vρ)', color:'#7c3aed'},
+  {id:'weight',  label:'🌍 สูตรหาน้ำหนัก (W=mg)', color:'#ea580c'},
+  {id:'table',   label:'📊 ตารางเหล็กรูปพรรณ', color:'#16a34a'},
+  {id:'unit',    label:'📐 การแปลงหน่วย', color:'#dc2626'},
+];
+
+const ALL_Q = [
+  // 💡 แนวคิด/นิยาม
+  {cat:'concept',q:'วัตถุ 2 ชิ้นมีปริมาตรเท่ากัน แต่คนละชนิดวัสดุ เมื่อชั่งน้ำหนักแล้วได้ค่าต่างกัน เป็นผลมาจากอะไร?',c:['ความหนาแน่น (Density) ของวัสดุไม่เท่ากัน','รูปทรงของวัตถุไม่เหมือนกัน','อุณหภูมิของวัตถุต่างกัน','แรงโน้มถ่วงที่จุดวัดต่างกัน'],a:0},
+  {cat:'concept',q:'"มวล" (Mass) กับ "น้ำหนัก" (Weight) ต่างกันอย่างไร?',c:['มวลคือปริมาณเนื้อสาร (kg) ส่วนน้ำหนักคือแรงที่โลกดึงดูดมวลนั้น (N)','มวลกับน้ำหนักคือสิ่งเดียวกัน ใช้แทนกันได้เสมอ','น้ำหนักวัดเป็น kg ส่วนมวลวัดเป็น N','มวลเปลี่ยนตามสถานที่ แต่น้ำหนักคงที่เสมอ'],a:0},
+  {cat:'concept',q:'สัญลักษณ์ ρ (โร) ในสูตร m = V×ρ หมายถึงอะไร?',c:['ความหนาแน่นของวัสดุ (Density)','ความยาวของวัสดุ','แรงโน้มถ่วงของโลก','พื้นที่หน้าตัดของวัสดุ'],a:0},
+  {cat:'concept',q:'ทำไมช่างจึงต้องเปิดตารางความหนาแน่นหรือตารางเหล็กรูปพรรณ แทนการคำนวณละเอียดทุกครั้ง?',c:['เพื่อความรวดเร็วและลดความผิดพลาดในงานจริงที่รูปทรงซับซ้อน','เพราะกฎหมายบังคับให้ใช้ตารางเท่านั้น','เพราะสูตร m=V×ρ ใช้ไม่ได้กับเหล็กรูปพรรณ','เพราะตารางให้ค่าที่แม่นยำกว่าการคำนวณเสมอ'],a:0},
+
+  // ⚖️ สูตรหามวล (m=Vρ)
+  {cat:'mass',q:'สูตรการหามวลของวัสดุจากปริมาตรคือข้อใด?',c:['m = V × ρ','m = V / ρ','m = V + ρ','m = V × g'],a:0},
+  {cat:'mass',q:'เหล็กเหนียวมีความหนาแน่น 7.85 kg/dm³ ถ้ามีปริมาตร 10 dm³ จะมีมวลเท่าไร?',c:['78.5 kg','7.85 kg','785 kg','17.85 kg'],a:0},
+  {cat:'mass',q:'แท่งเหล็กเหนียวขนาด 20×40×65 cm มีปริมาตร 52,000 cm³ ความหนาแน่นเหล็กเหนียว 7.85 g/cm³ จะมีมวลกี่กิโลกรัม?',c:['408.2 kg','52.0 kg','4,004.44 kg','40.82 kg'],a:0},
+  {cat:'mass',q:'ทองแดง (ρ = 8.9 kg/dm³) ปริมาตร 5 dm³ มีมวลเท่าไร?',c:['44.5 kg','8.9 kg','5 kg','13.9 kg'],a:0},
+  {cat:'mass',q:'อะลูมิเนียม (ρ = 2.7 kg/dm³) ปริมาตร 20 dm³ มีมวลเท่าไร?',c:['54 kg','2.7 kg','20 kg','27 kg'],a:0},
+
+  // 🌍 สูตรหาน้ำหนัก (W=mg)
+  {cat:'weight',q:'สูตรการหาน้ำหนักจากมวลคือข้อใด?',c:['W = m × g','W = m / g','W = m + g','W = m × ρ'],a:0},
+  {cat:'weight',q:'ค่าแรงโน้มถ่วงของโลก (g) ที่ใช้ในการคำนวณน้ำหนักมีค่าประมาณเท่าไร?',c:['9.81 m/sec²','8.91 m/sec²','9.81 kg/m³','10.81 m/sec²'],a:0},
+  {cat:'weight',q:'หน่วยของน้ำหนัก (Weight) ในทางฟิสิกส์คือหน่วยใด?',c:['นิวตัน (N)','กิโลกรัม (kg)','กรัม (g)','ลูกบาศก์เมตร (m³)'],a:0},
+  {cat:'weight',q:'แท่งเหล็กมีมวล 408.2 kg จะมีน้ำหนักประมาณเท่าไร?',c:['4,004.44 N','408.2 N','40.82 N','4,082 N'],a:0},
+  {cat:'weight',q:'1 กิโลกรัม (kg) เทียบเท่ากับกี่นิวตัน (N) โดยประมาณ?',c:['9.81 N','1 N','10 N','2.2 N'],a:0},
+
+  // 📊 ตารางเหล็กรูปพรรณ
+  {cat:'table',q:'ตารางเหล็กรูปพรรณ (เช่น เหล็กฉาก, H-Beam) ถูกสร้างขึ้นมาเพื่ออะไร?',c:['บอกมวลต่อความยาว 1 เมตร หรือมวลต่อพื้นที่ เพื่อความรวดเร็วในการคำนวณ','แทนที่สูตร m = V×ρ ในทุกกรณี','ใช้แทนการชั่งน้ำหนักจริงเท่านั้น','บอกเฉพาะราคาของเหล็กแต่ละชนิด'],a:0},
+  {cat:'table',q:'ถ้าเปิดตารางเหล็กฉากแล้วพบค่าน้ำหนักจำเพาะเป็น kg/m สูตรหามวลรวมคือข้อใด?',c:['มวล (m) = ความยาว (l) × ค่าจากตาราง (kg/m)','มวล (m) = พื้นที่ (A) × ค่าจากตาราง (kg/m)','มวล (m) = ความยาว (l) ÷ ค่าจากตาราง (kg/m)','มวล (m) = ค่าจากตาราง (kg/m) เพียงอย่างเดียว'],a:0},
+  {cat:'table',q:'สำหรับโลหะแผ่น ตารางมักให้ค่าน้ำหนักจำเพาะเป็นหน่วยใด?',c:['kg/m² (กิโลกรัมต่อตารางเมตร)','kg/m (กิโลกรัมต่อเมตร)','kg/m³ (กิโลกรัมต่อลูกบาศก์เมตร)','N/m² (นิวตันต่อตารางเมตร)'],a:0},
+  {cat:'table',q:'เหล็กแผ่นหนา 1.2 mm มีค่าในตาราง 9.420 kg/m² พื้นที่รวม 5 m² จะมีมวลรวมเท่าไร?',c:['47.1 kg','9.420 kg','1.884 kg','94.2 kg'],a:0},
+  {cat:'table',q:'จากข้อก่อนหน้า (มวลรวม 47.1 kg) น้ำหนักของแผ่นเหล็กนี้เท่ากับเท่าไร (ใช้ g = 9.81)?',c:['462.05 N','47.1 N','4.80 N','4,620.5 N'],a:0},
+
+  // 📐 การแปลงหน่วย
+  {cat:'unit',q:'จุดที่นักเรียนมักทำผิดพลาดบ่อยที่สุดในการหาปริมาตรและน้ำหนัก คือเรื่องใด?',c:['การแปลงหน่วย (mm, cm, m) ให้ตรงกันก่อนคำนวณ','การจำสูตร m = V×ρ ไม่ได้','การอ่านตารางความหนาแน่นผิดแถว','การบวกเลขทศนิยมผิด'],a:0},
+  {cat:'unit',q:'เหล็กแผ่นหนา 1.2 มิลลิเมตร (mm) เท่ากับกี่เซนติเมตร (cm)?',c:['0.12 cm','1.2 cm','12 cm','120 cm'],a:0},
+  {cat:'unit',q:'ถ้าความหนาแน่นให้มาเป็น g/cm³ แต่ปริมาตรคำนวณมาเป็น m³ ก่อนนำไปคูณหามวล ต้องทำอย่างไร?',c:['แปลงหน่วยปริมาตรหรือความหนาแน่นให้อยู่ในระบบเดียวกันก่อน','คูณกันได้ทันทีโดยไม่ต้องแปลงหน่วย','ใช้ค่าตัวเลขปริมาตรลบด้วยความหนาแน่นได้เลย','ไม่จำเป็นต้องสนใจหน่วย เพราะคำตอบจะถูกต้องเสมอ'],a:0},
+];
+
+// ─── STATE ──────────────────────────────────────────
+let selectedCats = new Set(CATS.map(c=>c.id));
+let mode = 'challenge';
+let g = {};
+
+function getCatMeta(id){ return CATS.find(c=>c.id===id) }
+
+// ─── TITLE SETUP ────────────────────────────────────
+function buildCatButtons(){
+  const grid = document.getElementById('cats-grid');
+  grid.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-all-btn on';
+  allBtn.id = 'cat-all';
+  allBtn.textContent = '✅ เลือกทุกหมวด';
+  allBtn.onclick = ()=>toggleAll();
+  grid.parentElement.insertBefore(allBtn, grid);
+
+  CATS.forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.className = 'cat-sel on';
+    btn.id = 'cat-'+cat.id;
+    btn.textContent = cat.label;
+    btn.style.cssText = `background:${cat.color};color:#fff;border-color:${cat.color}`;
+    btn.onclick = ()=>toggleCat(cat.id, btn, cat.color);
+    grid.appendChild(btn);
+  });
+  updateStartBtn();
+}
+
+function toggleAll(){
+  const allOn = selectedCats.size === CATS.length;
+  selectedCats = allOn ? new Set() : new Set(CATS.map(c=>c.id));
+  CATS.forEach(cat=>{
+    const btn = document.getElementById('cat-'+cat.id);
+    const meta = getCatMeta(cat.id);
+    if(selectedCats.has(cat.id)){
+      btn.className='cat-sel on';
+      btn.style.cssText=`background:${meta.color};color:#fff;border-color:${meta.color}`;
+    } else {
+      btn.className='cat-sel';
+      btn.style.cssText='';
+      btn.textContent = meta.label;
+    }
+  });
+  const allBtn = document.getElementById('cat-all');
+  allBtn.className = selectedCats.size===CATS.length ? 'cat-sel on' : 'cat-sel';
+  updateStartBtn();
+}
+
+function toggleCat(id, btn, color){
+  if(selectedCats.has(id)){
+    selectedCats.delete(id);
+    btn.className='cat-sel';
+    btn.style.cssText='';
+  } else {
+    selectedCats.add(id);
+    btn.className='cat-sel on';
+    btn.style.cssText=`background:${color};color:#fff;border-color:${color}`;
+  }
+  const allBtn = document.getElementById('cat-all');
+  allBtn.className = selectedCats.size===CATS.length?'cat-all-btn on':'cat-all-btn';
+  allBtn.textContent = selectedCats.size===CATS.length?'✅ เลือกทุกหมวด':'☐ เลือกทุกหมวด';
+  updateStartBtn();
+}
+
+function updateStartBtn(){
+  const n = ALL_Q.filter(q=>selectedCats.has(q.cat)).length;
+  document.getElementById('chip-q').textContent = `📝 ${n} ข้อ`;
+}
+
+function setMode(m){
+  mode = m;
+  document.getElementById('mode-challenge').className = 'mode-btn'+(m==='challenge'?' on':'');
+  document.getElementById('mode-practice').className = 'mode-btn'+(m==='practice'?' on':'');
+  document.getElementById('chip-t').textContent = m==='challenge'?'⏱️ 20 วิ/ข้อ':'📖 ไม่มีเวลา';
+  document.getElementById('timer-wrap') && (document.getElementById('timer-wrap').style.display = m==='practice'?'none':'');
+}
+
+// ─── GAME ────────────────────────────────────────────
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=0|Math.random()*(i+1);[b[i],b[j]]=[b[j],b[i]]}; return b }
+const LTRS = ['A','B','C','D'];
+
+function startGame(){
+  const pool = ALL_Q.filter(q=>selectedCats.has(q.cat));
+  if(!pool.length){ alert('กรุณาเลือกอย่างน้อย 1 หมวด'); return }
+
+  const qs = shuffle(pool).map(q=>{
+    const idx = q.c.map((c,i)=>({t:c,ok:i===q.a}));
+    const sh = shuffle(idx);
+    return {cat:q.cat, q:q.q, c:sh.map(x=>x.t), a:sh.findIndex(x=>x.ok)};
+  });
+
+  g = { qs, cur:0, score:0, lives:3, correct:0, answered:false, timer:null, timeLeft:20 };
+  showScreen('s-question');
+  document.getElementById('timer-wrap').style.display = mode==='practice'?'none':'';
+  renderQ();
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function livesHtml(n){ return '❤️'.repeat(Math.max(0,n))+'🖤'.repeat(Math.max(0,3-n)) }
+
+function renderQ(){
+  const {qs, cur, lives, score} = g;
+  const q = qs[cur];
+  const meta = getCatMeta(q.cat);
+
+  document.getElementById('hud-lives').textContent = livesHtml(lives);
+  document.getElementById('hud-score').textContent = score+' คะแนน';
+  document.getElementById('prog').style.width = (cur/qs.length*100)+'%';
+
+  const badge = document.getElementById('cat-badge');
+  badge.textContent = meta.label;
+  badge.style.background = meta.color;
+
+  document.getElementById('q-num').textContent = `ข้อที่ ${cur+1} จาก ${qs.length}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const ch = document.getElementById('choices');
+  ch.innerHTML = '';
+  q.c.forEach((c,i)=>{
+    const b = document.createElement('button');
+    b.className='choice-btn';
+    b.innerHTML=`<span class="choice-ltr">${LTRS[i]}</span><span>${c}</span>`;
+    b.onclick=()=>pick(i);
+    ch.appendChild(b);
+  });
+
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('btn-next').style.display='none';
+  g.answered = false;
+
+  if(mode==='challenge') startTimer();
+}
+
+function startTimer(){
+  clearInterval(g.timer);
+  g.timeLeft = 20;
+  updateTimer(20);
+  g.timer = setInterval(()=>{
+    g.timeLeft--;
+    updateTimer(g.timeLeft);
+    if(g.timeLeft<=0){ clearInterval(g.timer); if(!g.answered) timeOut(); }
+  },1000);
+}
+
+function updateTimer(t){
+  document.getElementById('t-num').textContent = t;
+  const r = 21, circ = 2*Math.PI*r;
+  const ring = document.getElementById('t-ring');
+  ring.style.strokeDasharray = circ;
+  ring.style.strokeDashoffset = circ*(1-t/20);
+  ring.style.stroke = t>10?'#22d3ee':t>5?'#facc15':'#f43f5e';
+}
+
+function timeOut(){
+  g.answered = true;
+  g.lives--;
+  document.getElementById('hud-lives').textContent = livesHtml(g.lives);
+  markAnswer(-1);
+  showFeedback(false, `⏰ หมดเวลา! คำตอบที่ถูกคือ: "${g.qs[g.cur].c[g.qs[g.cur].a]}"`);
+  scheduleNext();
+}
+
+function pick(idx){
+  if(g.answered) return;
+  g.answered = true;
+  clearInterval(g.timer);
+  const q = g.qs[g.cur];
+  const ok = idx === q.a;
+  markAnswer(idx);
+  if(ok){
+    const bonus = mode==='challenge' ? Math.round(g.timeLeft/20*50) : 0;
+    const pts = 100+bonus;
+    g.score += pts; g.correct++;
+    document.getElementById('hud-score').textContent = g.score+' คะแนน';
+    showFeedback(true, `✅ ถูกต้อง! +${pts} คะแนน`+(bonus?` (โบนัส +${bonus})` :''));
+  } else {
+    g.lives--;
+    document.getElementById('hud-lives').textContent = livesHtml(g.lives);
+    document.getElementById('q-card').classList.add('shake');
+    setTimeout(()=>document.getElementById('q-card').classList.remove('shake'),400);
+    showFeedback(false, `❌ ผิด! คำตอบที่ถูกคือ: "${q.c[q.a]}"`);
+  }
+  scheduleNext();
+}
+
+function markAnswer(chosen){
+  const q = g.qs[g.cur];
+  document.querySelectorAll('.choice-btn').forEach((b,i)=>{
+    b.disabled=true;
+    if(i===q.a) b.classList.add('correct');
+    else if(i===chosen) b.classList.add('wrong');
+  });
+}
+
+function showFeedback(ok, msg){
+  const fb = document.getElementById('feedback');
+  fb.textContent = msg;
+  fb.className='feedback '+(ok?'ok':'ng');
+  fb.style.display='block';
+}
+
+function scheduleNext(){
+  if(g.lives<=0){ setTimeout(endGame,1600); return }
+  if(g.cur>=g.qs.length-1){ setTimeout(endGame,1600); return }
+  document.getElementById('btn-next').style.display='block';
+}
+
+function nextQ(){
+  g.cur++;
+  if(g.cur>=g.qs.length) endGame();
+  else renderQ();
+}
+
+// ─── RESULT ──────────────────────────────────────────
+function endGame(){
+  clearInterval(g.timer);
+  const {qs,correct,score,lives} = g;
+  const total = qs.length;
+  const pct = correct/total*100;
+  showScreen('s-result');
+
+  let emoji,grade,color;
+  if(pct>=90){emoji='🏆';grade='เยี่ยมมาก!';color='#facc15'}
+  else if(pct>=75){emoji='⭐';grade='ดีมาก';color='#22d3ee'}
+  else if(pct>=60){emoji='👍';grade='ดี';color='#4ade80'}
+  else if(pct>=50){emoji='📚';grade='ผ่าน';color='#fb923c'}
+  else{emoji='💪';grade='ต้องฝึกเพิ่ม';color='#f43f5e'}
+
+  document.getElementById('r-emoji').textContent=emoji;
+  const g2=document.getElementById('r-grade'); g2.textContent=grade; g2.style.color=color;
+  document.getElementById('r-score').textContent=`${correct} / ${total} ข้อ — ${score.toLocaleString()} คะแนน`;
+  setTimeout(()=>{document.getElementById('r-bar').style.width=pct+'%'},100);
+
+  const liveLine = lives>0?`ชีวิตที่เหลือ: ${livesHtml(lives)}`:'❌ หมดชีวิต';
+  document.getElementById('r-detail').innerHTML=
+    `ตอบถูก ${correct} จาก ${total} ข้อ (${pct.toFixed(0)}%)<br>${liveLine}<br><br>`+
+    (pct>=60?'ยินดีด้วย เข้าใจเรื่องมวล-น้ำหนักดีแล้ว 🎉':'อย่าท้อ ลองทบทวนสูตร m=Vρ และ W=mg แล้วทำใหม่อีกครั้ง 💪');
+
+  if(pct>=75) fireConfetti();
+}
+
+function backToTitle(){ clearInterval(g.timer); showScreen('s-title') }
+
+function shareResult(){
+  const {qs,correct,score} = g;
+  const pct = (correct/qs.length*100).toFixed(0);
+  const text = `⚖️ แบบทดสอบสัปดาห์ที่ 8 — มวลและน้ำหนักของวัสดุ\nวิชาคณิตศาสตร์ช่างเชื่อม — ครูธานี ชมสุข\n\nตอบถูก: ${correct}/${qs.length} ข้อ (${pct}%)\nคะแนน: ${score.toLocaleString()} คะแนน`;
+  navigator.clipboard.writeText(text).then(()=>alert('คัดลอกแล้ว!')).catch(()=>alert(text));
+}
+
+// ─── CONFETTI ───────────────────────────────────────
+function fireConfetti(){
+  const el = document.getElementById('confetti');
+  el.innerHTML='';
+  const clr=['#22d3ee','#facc15','#4ade80','#f43f5e','#7c3aed','#ffffff'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div');
+    c.className='cc';
+    c.style.cssText=`left:${Math.random()*100}%;top:-10px;background:${clr[0|Math.random()*clr.length]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};animation:fall ${1.5+Math.random()*2}s ${Math.random()*.8}s linear forwards`;
+    el.appendChild(c);
+  }
+  setTimeout(()=>el.innerHTML='',4000);
+}
+
+// ─── INIT ────────────────────────────────────────────
+buildCatButtons();
+</script>
+</body>
+</html>
